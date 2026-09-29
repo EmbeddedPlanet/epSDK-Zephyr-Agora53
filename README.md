@@ -1,6 +1,6 @@
 [![epSDK-Zephyr-Agora53][ep-logo]][ep-link]
 
-[ep-logo]: logo.png
+[ep-logo]: EP_logo.png
 [ep-link]: https://www.embeddedplanet.com/
 [ep-doc-link]: https://www.embeddedplanet.com/product-documentation/#agora53
 
