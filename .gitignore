@@ -1,0 +1,3 @@
+/build
+epSDK/library/libepSDKZephyr.a
+epSDK/library/libalgobsec.a

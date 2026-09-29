@@ -1,0 +1,24 @@
+/ {
+	leds {
+		compatible = "gpio-leds";
+		led0: led_0 {
+			gpios = <&gpio0 26 GPIO_ACTIVE_HIGH>;
+			label = "Green LED 0";
+		};
+		led1: led_1 {
+			gpios = <&gpio0 21 GPIO_ACTIVE_HIGH>;
+			label = "Red LED 1";
+		};
+		led2: led_2 {
+			gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>;
+			label = "Blu LED 2";
+		};
+	};
+
+	/* These aliases are provided for compatibility with samples */
+	aliases {
+		led0 = &led0;
+		led1 = &led1;
+		led2 = &led2;
+	};
+};

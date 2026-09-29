@@ -1,0 +1,17 @@
+/dts-v1/;
+#include <arm/nordic/nrf5340_cpuapp_ns_qkaa.dtsi>
+#include "agora_cpuapp_common.dtsi"
+
+/ {
+	model = "Agora (cpuapp-ns)";
+	compatible = "ep,agora-cpuapp-ns";
+
+	chosen {
+		zephyr,sram = &sram0_ns;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_ns_partition;
+	};
+};
+
+#include "agora_cpuapp_partitioning.dtsi"
+#include "agora_shared_sram.dtsi"

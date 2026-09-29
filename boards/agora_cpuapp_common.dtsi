@@ -1,0 +1,245 @@
+#include "agora_common.dtsi"
+#include "agora_cpuapp_pinctrl.dtsi"
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+
+/ {
+
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,uart-mcumgr = &uart0;
+		nordic,pm-ext-flash = &w25q32jv;
+		zephyr,bt-mon-uart = &uart0;
+		zephyr,bt-c2h-uart = &uart0;
+		zephyr,bt-hci = &bt_hci_ipc0;
+		nordic,802154-spinel-ipc = &ipc0;
+	};
+
+	brd_gpio_out {
+		compatible = "gpio-leds";
+		sensor_pwr_en: sensor_pwr_en {
+			gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
+			label = "Sensor Power Enable";
+		};
+
+		bat_mon_en: bat_mon_en {
+			gpios = <&gpio0 29 GPIO_ACTIVE_HIGH>;
+			label = "Battery Monitor Enable";
+		};
+
+		board_id_en: board_id_en {
+			gpios = <&gpio1 15 GPIO_ACTIVE_LOW>;
+			label = "Board ID Enable";
+		};
+
+		cell_pwr_en: cell_pwr_en {
+			gpios = <&gpio0 8 GPIO_ACTIVE_HIGH>;
+			label = "Cell Power Enable";
+		};
+
+		cell_on_off: cell_on_off {
+			gpios = <&gpio0 27 GPIO_ACTIVE_HIGH>;
+			label = "Cell ON/OFF";
+		};
+
+		cell_hw_shutdown: cell_hw_shutdown {
+			gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
+			label = "Cell HW Shutdown";
+		};
+	};
+
+	brd_gpio_in {
+		compatible = "gpio-keys";
+		cell_pwr_mon: cell_pwr_mon {
+			gpios = <&gpio1 13 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>;
+			label = "Cell Power Monitor";
+		};
+
+		int_tof: int_tof {
+			gpios = <&gpio0 6 GPIO_ACTIVE_LOW >;
+			label = "Time-of-Flight Interrupt";
+		};
+
+		te_gpio6: te_gpio6 {
+			gpios = <&gpio0 20 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH) >;
+			label = "Edge IO6";
+		};
+
+		te_gpio7: te_gpio7 {
+			gpios = <&gpio1 11 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH) >;
+			label = "Edge IO7";
+		};
+
+		te_gpio8: te_gpio8 {
+			gpios = <&gpio1 12 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH) >;
+			label = "Edge IO8";
+		};
+
+		te_gpio9: te_gpio9 {
+			gpios = <&gpio0 23 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH) >;
+			label = "Edge IO9";
+		};
+	};
+
+};
+
+&adc {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_1_6";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,input-positive = <NRF_SAADC_AIN0>;
+		zephyr,resolution = <12>;
+	};
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+
+	/*sensor_pwr_en_hog {
+		gpio-hog;
+		gpios = <5 GPIO_ACTIVE_HIGH>;
+		output-high;
+	};*/
+};
+
+&i2c1 {
+	compatible = "nordic,nrf-twim";
+	status = "okay";
+	pinctrl-0 = <&i2c1_default>;
+	pinctrl-1 = <&i2c1_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	bme680: bme680@76 {
+		compatible = "vnd,i2c_device";
+		label = "BME680";
+		status = "okay";
+		reg = <0x76>;
+	};
+
+	htu21d: htu21d@40 {
+		compatible = "vnd,i2c_device";
+		label = "HTU21D";
+		status = "okay";
+		reg = <0x40>;
+	};
+
+	vl53l0x: vl53l0x@29 {
+		compatible = "vnd,i2c_device";
+		label = "VL53L0X";
+		status = "okay";
+		reg = <0x29>;
+	};
+
+	icm20602: icm20602@68 {
+		compatible = "vnd,i2c_device";
+		label = "ICM20602";
+		status = "okay";
+		reg = <0x68>;
+	};
+};
+
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-1 = <&uart0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&uart2 {
+	status = "okay";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart2_default>;
+	pinctrl-1 = <&uart2_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x00000000 DT_SIZE_K(48)>;
+		};
+
+		/* slot0 / MCUboot primary slot*/
+		slot0_partition: partition@c000 {
+			label = "image-0";
+			reg = <0x0000c000 DT_SIZE_K(900)>;
+		};
+
+		/* slot1 / MCUboot secondary is in external QSPI flash (see below) */
+	};
+};
+
+&qspi {
+	status = "okay";
+	pinctrl-0 = <&qspi_default>;
+	pinctrl-1 = <&qspi_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	w25q32jv: w25q32jv@0 {
+		compatible = "nordic,qspi-nor";
+		reg = <0>;
+		writeoc = "pp4o";
+		readoc = "read4o";
+		sck-frequency = <8000000>;
+		jedec-id = [ef 40 16];
+		size = <33554432>;
+		/* ========================================================= */
+		/* ADD LOW POWER PROPERTIES DIRECTLY INSIDE THE CHILD CHIP BLOCK */
+		/* ========================================================= */
+		has-dpd;              /* Enables Deep Power-Down command handling (0xB9) */
+		t-enter-dpd = <3000>; /* Winbond W25Q32JV max duration to enter DPD (3000ns) */
+		t-exit-dpd = <3000>;  /* Winbond W25Q32JV max duration to exit DPD (3000ns) */
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			app_storage_parition: partition@0 {
+				label = "app_storage";
+				reg = <0x0 0x2cc000>;
+			};
+
+			/* slot1 / MCUboot secondary slot */
+			slot1_partition: partition@2cc000 {
+				label = "image-1";
+				reg = <0x002cc000 DT_SIZE_K(900)>;
+			};
+
+			/* Net core secondary slot for multi-image DFU */
+			slot3_partition: partition@3c0000 {
+				label = "image-3";
+				reg = <0x3c0000 0x40000>;
+			};
+		};
+	};
+};
+
+/ {
+	zephyr,user {
+		io-channels = <&adc 0>;
+	};
+};
+
+/* Include default memory partition configuration file */
+#include "agora_cpuapp_partitioning.dtsi"

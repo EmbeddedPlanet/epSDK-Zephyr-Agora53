@@ -1,0 +1,9 @@
+board:
+  name: agora
+  full_name: agora
+  vendor: ep
+  socs:
+  - name: 'nrf5340'
+    variants:
+    - name: 'ns'
+      cpucluster: 'cpuapp'

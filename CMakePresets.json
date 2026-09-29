@@ -1,0 +1,23 @@
+{
+    "version": 2,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20
+    },
+    "configurePresets": [
+        {
+            "name": "build",
+            "displayName": "Build for agora",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "BOARD": "agora/nrf5340/cpuapp",
+                "DEBUG_THREAD_INFO": true,
+                "CONFIG_DEBUG_THREAD_INFO": true,
+                "BOARD_ROOT": "${sourceParentDir}/connected-sensor-zephyr",
+                "connected-sensor-zephyr_DEBUG_THREAD_INFO": false,
+                "mcuboot_DEBUG_THREAD_INFO": false
+            }
+        }
+    ]
+}
